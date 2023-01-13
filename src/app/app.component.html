@@ -2,7 +2,7 @@
   <title>Progetto SSW</title>
 </head>
 <h1>Teatro SSW</h1>
-<div id="teatri">
+<div id="teatri" *ngIf="showT === true">
   <li *ngFor="let teatro of teatri">
     <button (click)="selectT(teatro.id)">
       Teatro {{ teatro.id }} <br />
@@ -19,3 +19,4 @@
     (keyup.enter)="requestAccess(key.value)"
   />
 </p>
+<nominativo [visible]="showFormName"></nominativo>

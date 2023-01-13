@@ -1,0 +1,8 @@
+<p *ngIf="visible === true">
+  Inserisci il nome con cui vuoi prenotare:
+  <input
+    placeholder="Inserisci il nome"
+    #name
+    (keyup.enter)="setName(name.value)"
+  />
+</p>
