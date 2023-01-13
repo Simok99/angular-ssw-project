@@ -2,3 +2,20 @@
   <title>Progetto SSW</title>
 </head>
 <h1>Teatro SSW</h1>
+<div id="teatri">
+  <li *ngFor="let teatro of teatri">
+    <button (click)="selectT(teatro.id)">
+      Teatro {{ teatro.id }} <br />
+      {{ teatro.spettacolo }}
+    </button>
+  </li>
+</div>
+<p id="requestPar" *ngIf="selezione !== undefined">
+  Per prenotare posti al teatro {{ selezione }},inserisci la chiave dello
+  spettacolo:
+  <input
+    placeholder="Inserisci la chiave"
+    #key
+    (keyup.enter)="requestAccess(key.value)"
+  />
+</p>
