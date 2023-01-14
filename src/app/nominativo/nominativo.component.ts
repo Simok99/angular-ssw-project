@@ -17,11 +17,31 @@ export class NominativoComponent implements OnInit {
     //TODO Passare nome a component prenotazione
   }
 
+  public getName() {
+    return this.name;
+  }
+
   private checkName(name: string) {
     let maxNameLength: number = 8;
-    let invalidChars: string[] = ['!', '$', '£', '"', '%', '/', '=', '\\', '|'];
+    let minNameLength: number = 2;
+    let invalidChars: string[] = [
+      ' ',
+      '!',
+      '$',
+      '£',
+      '"',
+      '%',
+      '/',
+      '=',
+      '\\',
+      '|',
+    ];
     if (name === undefined || name === null) {
       alert('Nome non valido.');
+      return false;
+    }
+    if (name.length < minNameLength) {
+      alert('Il nome deve essere lungo almeno ' + minNameLength + ' caratteri');
       return false;
     }
     if (name.length > maxNameLength) {

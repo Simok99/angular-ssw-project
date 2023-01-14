@@ -4,9 +4,9 @@
 <h1>Teatro SSW</h1>
 <div id="teatri" *ngIf="showT === true">
   <li *ngFor="let teatro of teatri">
-    <button (click)="selectT(teatro.id)">
-      Teatro {{ teatro.id }} <br />
-      {{ teatro.spettacolo }}
+    <button (click)="selectT(teatro.getId())">
+      Teatro {{ teatro.getId() }} <br />
+      {{ teatro.getSpettacolo() }}
     </button>
   </li>
 </div>
@@ -20,3 +20,4 @@
   />
 </p>
 <nominativo [visible]="showFormName"></nominativo>
+<prenotazione [th]="teatroSel"></prenotazione>
