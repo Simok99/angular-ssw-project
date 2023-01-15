@@ -3,15 +3,15 @@
 </head>
 <h1>Teatro SSW</h1>
 <div id="teatri" *ngIf="showT === true">
-  <li *ngFor="let teatro of teatri">
+  <li *ngFor="let teatro of getTeatri()">
     <button (click)="selectT(teatro.getId())">
       Teatro {{ teatro.getId() }} <br />
       {{ teatro.getSpettacolo() }}
     </button>
   </li>
 </div>
-<p id="requestPar" *ngIf="selezione !== undefined">
-  Per prenotare posti al teatro {{ selezione }},inserisci la chiave dello
+<p id="requestPar" *ngIf="getSelection() !== undefined">
+  Per prenotare posti al teatro {{ getSelection() }},inserisci la chiave dello
   spettacolo:
   <input
     placeholder="Inserisci la chiave"
@@ -19,5 +19,12 @@
     (keyup.enter)="requestAccess(key.value)"
   />
 </p>
-<nominativo [visible]="showFormName"></nominativo>
-<prenotazione [th]="teatroSel"></prenotazione>
+<nominativo
+  [visible]="showFormName"
+  (nameEvent)="receiveName($event)"
+></nominativo>
+<prenotazione
+  *ngIf="showPrenotazioni === true"
+  [name]="getFormName()"
+  [th]="getTeatroSel()"
+></prenotazione>

@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 
 @Component({
   selector: 'nominativo',
@@ -7,18 +7,15 @@ import { Component, OnInit, Input } from '@angular/core';
 })
 export class NominativoComponent implements OnInit {
   @Input() visible: boolean;
+  @Output() nameEvent = new EventEmitter<string>();
   constructor() {}
   private name: string;
 
   setName(name: string) {
     if (!this.checkName(name)) return;
     this.name = name;
+    this.nameEvent.next(this.name);
     this.visible = false;
-    //TODO Passare nome a component prenotazione
-  }
-
-  public getName() {
-    return this.name;
   }
 
   private checkName(name: string) {

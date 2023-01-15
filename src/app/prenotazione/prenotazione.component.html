@@ -1,1 +1,10 @@
-<div class="grid" *ngIf="visible === true"><li></li></div>
+<div>
+  <li *ngFor="let mybutton of buttonsPlatea">
+    {{ mybutton }}
+  </li>
+</div>
+
+<p *ngIf="getCurrentPrenotazione() !== undefined">
+  Stai per prenotare i seguenti posti:
+  <!--<li *ngFor="let posto=getIdPosto() of posti">{{ posto }}</li>-->
+</p>
