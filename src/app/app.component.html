@@ -11,7 +11,7 @@
   </li>
 </div>
 <p id="requestPar" *ngIf="getSelection() !== undefined">
-  Per prenotare posti al teatro {{ getSelection() }},inserisci la chiave dello
+  Per prenotare posti al teatro {{ getSelection() }}, inserisci la chiave dello
   spettacolo:
   <input
     placeholder="Inserisci la chiave"
@@ -27,4 +27,5 @@
   *ngIf="showPrenotazioni === true"
   [name]="getFormName()"
   [th]="getTeatroSel()"
+  (prenotazioneEvent)="receivePrenotazione($event)"
 ></prenotazione>

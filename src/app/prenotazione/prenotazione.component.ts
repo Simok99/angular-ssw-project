@@ -4,6 +4,8 @@ import {
   Input,
   OnChanges,
   SimpleChanges,
+  Output,
+  EventEmitter,
 } from '@angular/core';
 import { Teatro } from '../app.component';
 
@@ -15,11 +17,12 @@ import { Teatro } from '../app.component';
 export class PrenotazioneComponent implements OnInit, OnChanges {
   @Input() name: string;
   @Input() th: Teatro;
+  @Output() prenotazioneEvent = new EventEmitter<string>();
 
-  buttonsPlatea: Array<HTMLButtonElement> = [];
-  buttonsPalchi: Array<HTMLButtonElement> = [];
+  buttonsPlatea: Array<string>[];
+  buttonsPalchi: Array<string>[];
 
-  prenotazione: Array<string> = [];
+  private posti: Array<string> = [];
 
   constructor() {}
   ngOnChanges(changes: SimpleChanges): void {
@@ -30,38 +33,45 @@ export class PrenotazioneComponent implements OnInit, OnChanges {
 
   //Funzione usata per costruire l'interfaccia con bottoni
   buildUI() {
-    let platea = this.th.getPlatea();
-    platea.map((fila, indiceFila) => {
+    this.buttonsPlatea = this.th.getPlatea();
+    this.buttonsPlatea.map((fila, indiceFila) => {
       let p = fila.map((nome, indicePosto) => {
-        let newButton = document.createElement('button');
-        newButton.innerHTML = this.getLetter(indiceFila) + (indicePosto + 1);
-        newButton.value = nome;
-        newButton.style.color = nome !== '' ? 'grey' : 'red';
-        this.buttonsPlatea.push(newButton);
+        let posto: string = '';
+        posto = posto.concat(
+          this.getLetter(indiceFila) + (indicePosto + 1) + ' ' + nome
+        );
+        this.buttonsPlatea[indiceFila][indicePosto] = posto;
       });
     });
 
-    let palchi = this.th.getPalchi();
-    palchi.map((fila, indiceFila) => {
+    this.buttonsPalchi = this.th.getPalchi();
+    let i: number = 0;
+    this.buttonsPalchi.map((fila, indiceFila) => {
       let p = fila.map((nome, indicePosto) => {
-        let newButton = document.createElement('button');
-        let displayName: string = '';
-        if (nome !== '') {
-          displayName = '<br />' + nome;
-        }
-        newButton.innerHTML =
-          this.getLetter(indiceFila) + (indicePosto + 1) + displayName;
-        newButton.value = nome;
-        newButton.style.color = nome !== '' ? 'grey' : 'red';
-        this.buttonsPalchi.push(newButton);
+        let posto: string = '';
+        posto = posto.concat('Pa ' + (i + 1) + ' ' + nome);
+        this.buttonsPalchi[indiceFila][indicePosto] = posto;
+        i++;
       });
     });
   }
 
-  addPostoPrenotazione(idPosto: string) {
-    console.log(idPosto);
+  addPosto(posto: string) {
+    this.posti.push(posto);
     //TODO controllare id posto nel teatro
-    this.prenotazione.push(idPosto);
+    //this.prenotazione.push(idPosto);
+  }
+
+  warnPosto(posto: string) {
+    alert('Il posto selezionato è già stato prenotato');
+  }
+
+  exit() {
+    this.prenotazioneEvent.next('exit');
+  }
+
+  confirm() {
+    this.prenotazioneEvent.next('confirm');
   }
 
   //Associa una lettera ad un indice per maggiore leggibilità
@@ -71,8 +81,8 @@ export class PrenotazioneComponent implements OnInit, OnChanges {
     return String.fromCharCode(res);
   }
 
-  getCurrentPrenotazione() {
-    return this.prenotazione;
+  getCurrentPosti() {
+    return this.posti;
   }
 
   ngOnInit() {}

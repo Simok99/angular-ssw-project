@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { KvaasService } from './kvaas.service';
 
 @Component({
   selector: 'my-app',
@@ -6,7 +7,7 @@ import { Component } from '@angular/core';
   styleUrls: ['./app.component.css'],
 })
 export class AppComponent {
-  constructor() {}
+  constructor(private kvaas: KvaasService) {}
   private teatro1: Teatro = new Teatro(1, 'Shakespeare', 7, 4, 10, 6);
   private teatri: Array<Teatro> = [this.teatro1];
   showT: boolean = true;
@@ -29,6 +30,15 @@ export class AppComponent {
 
   requestAccess(key: string) {
     //TODO match con key generata tramite new del service kvaas
+    if (this.selezione === 1) {
+      //Teatro default selezionato
+      if (!this.kvaas.matchDefaultKey(key)) {
+        //Chiave inserita errata
+        alert('Chiave non corretta per il teatro ' + this.selezione);
+        return;
+      }
+    }
+    //Chiave corretta
     this.showT = false;
     this.selezione = undefined;
     this.showFormName = true;
@@ -38,6 +48,35 @@ export class AppComponent {
     this.formName = $event;
     //Teatro selezionato e nome impostato, posso mostrare il component prenotazione
     this.showPrenotazioni = true;
+  }
+
+  receivePrenotazione($event: string) {
+    console.log($event);
+    switch ($event) {
+      case 'exit':
+        this.doLogout();
+        break;
+      case 'confirm':
+        this.doConfirm();
+        break;
+      default:
+        alert('Errore tecnico');
+        this.doLogout();
+        break;
+    }
+    //L'utente ha effettuato una prenotazione oppure ha effettuato logout
+    //TODO reimpostare schermata iniziale o mantenere prenotazioni?
+  }
+
+  doLogout() {
+    this.showPrenotazioni = false;
+    this.selezione = undefined;
+    this.showFormName = false;
+    this.showT = true;
+  }
+
+  doConfirm() {
+    //TODO implement
   }
 
   getTeatri() {
@@ -64,6 +103,8 @@ export class Teatro {
 
   private platea: Array<string>[];
   private palchi: Array<string>[];
+
+  private prenotazioni: Array<string>[];
 
   constructor(
     id: number,
@@ -96,6 +137,21 @@ export class Teatro {
     );
   }
 
+  private fetchPrenotazioni() {
+    //Effettua un refresh dei dati delle prenotazioni dal service kvaas
+    //TODO match key, effettuare get
+  }
+
+  public requestPrenotazionePlatea() {
+    //Controlla che i posti selezionati siano disponibili
+  }
+
+  public setPrenotazioni() {
+    //Aggiorna this.prenotazioni ed effettua una set con il service kvaas
+    this.fetchPrenotazioni();
+    //Ritorna true se tutto ok, false in caso di errore
+  }
+
   public getId() {
     return this.id;
   }
@@ -116,14 +172,12 @@ export class Teatro {
   }
 
   public getPlatea() {
-    return this.platea;
+    return structuredClone(this.platea);
   }
 
   public getPalchi() {
-    return this.palchi;
+    return structuredClone(this.palchi);
   }
-
-  //TODO Aggiungere setter per associazione posto-nome prenotazione
 
   //TODO Aggiungere setter per implementazione bottone aggiungi teatro
 }

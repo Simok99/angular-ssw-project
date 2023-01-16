@@ -1,10 +1,61 @@
-<div>
-  <li *ngFor="let mybutton of buttonsPlatea">
-    {{ mybutton }}
+<p style="font-weight:bold;">
+  Utente: {{ name }}
+  <br />
+  <button (click)="exit()">Esci</button>
+</p>
+
+<div *ngIf="buttonsPlatea.length === 0">
+  Impossibile caricare i posti in platea, o il teatro selezionato non ne
+  possiede
+</div>
+<div *ngIf="buttonsPlatea.length !== 0">
+  <li *ngFor="let fila of buttonsPlatea">
+    <button
+      *ngFor="let posto of fila"
+      [ngStyle]="{
+        'background-color': posto.length > 4 ? 'red' : 'grey',
+        padding: '7px 16px',
+        'white-space': 'normal'
+      }"
+      (click)="posto.length > 4 ? warnPosto(posto) : addPosto(posto)"
+    >
+      {{ posto }}
+    </button>
+    <br />
   </li>
 </div>
 
-<p *ngIf="getCurrentPrenotazione() !== undefined">
+<br />
+<br />
+
+<div *ngIf="buttonsPalchi.length === 0">
+  Impossibile caricare i posti dei palchi, o il teatro selezionato non ne
+  possiede
+</div>
+<div *ngIf="buttonsPalchi.length !== 0">
+  <li *ngFor="let fila of buttonsPalchi">
+    <button
+      *ngFor="let posto of fila"
+      [ngStyle]="{
+        'background-color': posto.length > 6 ? 'red' : 'grey',
+        padding: '7px 16px',
+        'white-space': 'normal'
+      }"
+      (click)="posto.length > 6 ? warnPosto(posto) : addPosto(posto)"
+    >
+      {{ posto }}
+    </button>
+    <br />
+  </li>
+</div>
+
+<br />
+<br />
+
+<p *ngIf="getCurrentPosti().length !== 0">
   Stai per prenotare i seguenti posti:
-  <!--<li *ngFor="let posto=getIdPosto() of posti">{{ posto }}</li>-->
+  <li *ngFor="let posto of getCurrentPosti()">{{ posto }}</li>
+  <br />
+  <br />
+  <button (click)="confirm()">Conferma</button>
 </p>
