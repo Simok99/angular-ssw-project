@@ -22,7 +22,9 @@ export class PrenotazioneComponent implements OnInit, OnChanges {
   buttonsPlatea: Array<string>[];
   buttonsPalchi: Array<string>[];
 
-  private posti: Array<string> = [];
+  private npostiPalchi: number;
+  private postiPlatea: Array<string> = [];
+  private postiPalchi: Array<string> = [];
 
   constructor() {}
   ngOnChanges(changes: SimpleChanges): void {
@@ -38,7 +40,7 @@ export class PrenotazioneComponent implements OnInit, OnChanges {
       let p = fila.map((nome, indicePosto) => {
         let posto: string = '';
         posto = posto.concat(
-          this.getLetter(indiceFila) + (indicePosto + 1) + ' ' + nome
+          this.getLetter(indiceFila) + (indicePosto + 1) + '- ' + nome
         );
         this.buttonsPlatea[indiceFila][indicePosto] = posto;
       });
@@ -49,17 +51,20 @@ export class PrenotazioneComponent implements OnInit, OnChanges {
     this.buttonsPalchi.map((fila, indiceFila) => {
       let p = fila.map((nome, indicePosto) => {
         let posto: string = '';
-        posto = posto.concat('Pa ' + (i + 1) + ' ' + nome);
+        posto = posto.concat('Pa ' + (i + 1) + '- ' + nome);
         this.buttonsPalchi[indiceFila][indicePosto] = posto;
         i++;
       });
     });
   }
 
-  addPosto(posto: string) {
-    this.posti.push(posto);
-    //TODO controllare id posto nel teatro
-    //this.prenotazione.push(idPosto);
+  addPostoPlatea(fila: number, posto: number) {
+    this.postiPlatea.push(fila + '-' + posto);
+    console.log('FILA: ' + fila + ' POSTO: ' + posto);
+  }
+
+  addPostoPalchi(fila: number, posto: number) {
+    this.postiPalchi.push(fila + '-' + posto);
   }
 
   warnPosto(posto: string) {
@@ -71,6 +76,9 @@ export class PrenotazioneComponent implements OnInit, OnChanges {
   }
 
   confirm() {
+    //Unica richiesta sequenziale per coerenza DB
+    //this.th.requestPrenotazione(this.posti, this.name);
+    console.log(this.postiPlatea.concat(this.postiPalchi));
     this.prenotazioneEvent.next('confirm');
   }
 
@@ -81,8 +89,30 @@ export class PrenotazioneComponent implements OnInit, OnChanges {
     return String.fromCharCode(res);
   }
 
-  getCurrentPosti() {
-    return this.posti;
+  getCurrentPostiPlatea() {
+    let posti: string[] = [];
+    this.postiPlatea.forEach((seat) => {
+      let indexFila: number = +seat.substring(0, 1);
+      let indexPosto: number = +seat.substring(2);
+      posti.push(this.getLetter(indexFila) + (indexPosto + 1));
+    });
+    return posti;
+  }
+  getCurrentPostiPalchi() {
+    let posti: string[] = [];
+    let postiPalchi: number = this.th.getPostiPalchi();
+    let filePalchi: number = this.th.getFilePalchi();
+    let tot: number = postiPalchi * filePalchi;
+    this.postiPalchi.forEach((seat) => {
+      let indexFila: number = +seat.substring(0, 1);
+      let indexPosto: number = +seat.substring(2);
+      let i: number = indexFila + 1;
+      let j: number = indexPosto + 1;
+
+      //Grazie anche a Domenico per la serata passata a trovare questa formula :)
+      posti.push('Pa ' + (i * j + (postiPalchi - j) * (i - 1)));
+    });
+    return posti;
   }
 
   ngOnInit() {}

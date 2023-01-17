@@ -9,15 +9,23 @@
   possiede
 </div>
 <div *ngIf="buttonsPlatea.length !== 0">
-  <li *ngFor="let fila of buttonsPlatea">
+  <li
+    *ngFor="let fila of buttonsPlatea; let indiceFila = index"
+    [attr.data-index]="indiceFila"
+  >
     <button
-      *ngFor="let posto of fila"
+      *ngFor="let posto of fila; let indicePosto = index"
+      [attr.data-index]="indicePosto"
       [ngStyle]="{
         'background-color': posto.length > 4 ? 'red' : 'grey',
         padding: '7px 16px',
         'white-space': 'normal'
       }"
-      (click)="posto.length > 4 ? warnPosto(posto) : addPosto(posto)"
+      (click)="
+        posto.length > 4
+          ? warnPosto(posto)
+          : addPostoPlatea(indiceFila, indicePosto)
+      "
     >
       {{ posto }}
     </button>
@@ -33,15 +41,23 @@
   possiede
 </div>
 <div *ngIf="buttonsPalchi.length !== 0">
-  <li *ngFor="let fila of buttonsPalchi">
+  <li
+    *ngFor="let fila of buttonsPalchi; let indiceFila = index"
+    [attr.data-index]="indiceFila"
+  >
     <button
-      *ngFor="let posto of fila"
+      *ngFor="let posto of fila; let indicePosto = index"
+      [attr.data-index]="indicePosto"
       [ngStyle]="{
         'background-color': posto.length > 6 ? 'red' : 'grey',
         padding: '7px 16px',
         'white-space': 'normal'
       }"
-      (click)="posto.length > 6 ? warnPosto(posto) : addPosto(posto)"
+      (click)="
+        posto.length > 6
+          ? warnPosto(posto)
+          : addPostoPalchi(indiceFila, indicePosto)
+      "
     >
       {{ posto }}
     </button>
@@ -52,9 +68,14 @@
 <br />
 <br />
 
-<p *ngIf="getCurrentPosti().length !== 0">
+<p
+  *ngIf="
+    getCurrentPostiPlatea().length !== 0 || getCurrentPostiPalchi().length !== 0
+  "
+>
   Stai per prenotare i seguenti posti:
-  <li *ngFor="let posto of getCurrentPosti()">{{ posto }}</li>
+  <li *ngFor="let posto of getCurrentPostiPlatea()">{{ posto }}</li>
+  <li *ngFor="let posto of getCurrentPostiPalchi()">{{ posto }}</li>
   <br />
   <br />
   <button (click)="confirm()">Conferma</button>

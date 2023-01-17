@@ -142,8 +142,9 @@ export class Teatro {
     //TODO match key, effettuare get
   }
 
-  public requestPrenotazionePlatea() {
+  public requestPrenotazione(posti: Array<string>, name: string) {
     //Controlla che i posti selezionati siano disponibili
+    this.fetchPrenotazioni();
   }
 
   public setPrenotazioni() {
