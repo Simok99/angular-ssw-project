@@ -22,7 +22,6 @@ export class PrenotazioneComponent implements OnInit, OnChanges {
   buttonsPlatea: Array<string>[];
   buttonsPalchi: Array<string>[];
 
-  private npostiPalchi: number;
   private postiPlatea: Array<string> = [];
   private postiPalchi: Array<string> = [];
 
@@ -42,6 +41,7 @@ export class PrenotazioneComponent implements OnInit, OnChanges {
         posto = posto.concat(
           this.getLetter(indiceFila) + (indicePosto + 1) + '- ' + nome
         );
+        //console.log(posto.substring(0, posto.indexOf('-')));
         this.buttonsPlatea[indiceFila][indicePosto] = posto;
       });
     });
@@ -59,12 +59,15 @@ export class PrenotazioneComponent implements OnInit, OnChanges {
   }
 
   addPostoPlatea(fila: number, posto: number) {
-    this.postiPlatea.push(fila + '-' + posto);
-    console.log('FILA: ' + fila + ' POSTO: ' + posto);
+    let value: string = fila + '-' + posto;
+    if (this.postiPlatea.indexOf(value) !== -1) return; //Posto già prenotato
+    this.postiPlatea.push(value);
   }
 
   addPostoPalchi(fila: number, posto: number) {
-    this.postiPalchi.push(fila + '-' + posto);
+    let value: string = fila + '-' + posto;
+    if (this.postiPalchi.indexOf(value) !== -1) return; //Posto già prenotato
+    this.postiPalchi.push(value);
   }
 
   warnPosto(posto: string) {
@@ -101,8 +104,6 @@ export class PrenotazioneComponent implements OnInit, OnChanges {
   getCurrentPostiPalchi() {
     let posti: string[] = [];
     let postiPalchi: number = this.th.getPostiPalchi();
-    let filePalchi: number = this.th.getFilePalchi();
-    let tot: number = postiPalchi * filePalchi;
     this.postiPalchi.forEach((seat) => {
       let indexFila: number = +seat.substring(0, 1);
       let indexPosto: number = +seat.substring(2);

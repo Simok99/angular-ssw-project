@@ -15,14 +15,22 @@
   >
     <button
       *ngFor="let posto of fila; let indicePosto = index"
+      [disabled]="posto.substring(posto.indexOf('-')).length > 2"
       [attr.data-index]="indicePosto"
       [ngStyle]="{
-        'background-color': posto.length > 4 ? 'red' : 'grey',
+        'background-color':
+          getCurrentPostiPlatea().indexOf(
+            posto.substring(0, posto.indexOf('-'))
+          ) !== -1
+            ? 'green'
+            : posto.substring(posto.indexOf('-')).length > 2
+            ? 'red'
+            : 'grey',
         padding: '7px 16px',
         'white-space': 'normal'
       }"
       (click)="
-        posto.length > 4
+        posto.substring(posto.indexOf('-')).length > 2
           ? warnPosto(posto)
           : addPostoPlatea(indiceFila, indicePosto)
       "
@@ -47,14 +55,22 @@
   >
     <button
       *ngFor="let posto of fila; let indicePosto = index"
+      [disabled]="posto.substring(posto.indexOf('-')).length > 2"
       [attr.data-index]="indicePosto"
       [ngStyle]="{
-        'background-color': posto.length > 6 ? 'red' : 'grey',
+        'background-color':
+          getCurrentPostiPalchi().indexOf(
+            posto.substring(0, posto.indexOf('-'))
+          ) !== -1
+            ? 'green'
+            : posto.substring(posto.indexOf('-')).length > 2
+            ? 'red'
+            : 'grey',
         padding: '7px 16px',
         'white-space': 'normal'
       }"
       (click)="
-        posto.length > 6
+        posto.substring(posto.indexOf('-')).length > 2
           ? warnPosto(posto)
           : addPostoPalchi(indiceFila, indicePosto)
       "

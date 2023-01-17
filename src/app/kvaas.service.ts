@@ -31,7 +31,7 @@ export class KvaasService {
   public getData(thKey: string): Observable<Object> {
     //TODO se thKey === firstTheaterKey teatro base, altrimenti c'è stato overwrite nel DB OPPURE si vuole
     //creare un nuovo teatro
-    return this.http.get(this.getURL + thKey);
+    return this.http.get(JSON.parse(this.getURL + thKey));
   }
 
   public setData(thKey: string, value: Object): Observable<Object> {
