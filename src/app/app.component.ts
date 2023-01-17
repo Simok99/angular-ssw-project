@@ -111,7 +111,7 @@ export class AppComponent {
     return this.formName;
   }
   getTeatroSel() {
-    return structuredClone(this.teatroSel);
+    return this.teatroSel;
   }
 }
 
@@ -160,6 +160,7 @@ export class Teatro {
   }
 
   public updateTheater(JSONData: any) {
+    //TODO Controllo key prima di aggiornare
     //Funzione usata per aggiornare il teatro con le prenotazioni ottenute da kvaas
     let json: any = JSON.parse(JSONData);
     for (let i = 0; i < this.filePlatea; i++) {

@@ -25,6 +25,8 @@ export class PrenotazioneComponent implements OnInit, OnChanges {
   private postiPlatea: Array<string> = [];
   private postiPalchi: Array<string> = [];
 
+  postiPrenotati: Array<string> = [];
+
   constructor() {}
   ngOnChanges(changes: SimpleChanges): void {
     this.name = changes.name.currentValue;
@@ -62,12 +64,19 @@ export class PrenotazioneComponent implements OnInit, OnChanges {
     let value: string = fila + '-' + posto;
     if (this.postiPlatea.indexOf(value) !== -1) return; //Posto già prenotato
     this.postiPlatea.push(value);
+    this.postiPrenotati.push(this.getLetter(fila) + (posto + 1));
   }
 
   addPostoPalchi(fila: number, posto: number) {
     let value: string = fila + '-' + posto;
     if (this.postiPalchi.indexOf(value) !== -1) return; //Posto già prenotato
     this.postiPalchi.push(value);
+    let postiPalchi: number = this.th.getPostiPalchi();
+    let i: number = fila + 1;
+    let j: number = posto + 1;
+
+    //Grazie anche a Domenico per la serata passata a trovare questa formula :)
+    this.postiPrenotati.push('Pa ' + (i * j + (postiPalchi - j) * (i - 1)));
   }
 
   warnPosto(posto: string) {
@@ -91,30 +100,6 @@ export class PrenotazioneComponent implements OnInit, OnChanges {
     const a: number = 'A'.charCodeAt(0);
     let res: number = a + index;
     return String.fromCharCode(res);
-  }
-
-  getCurrentPostiPlatea() {
-    let posti: string[] = [];
-    this.postiPlatea.forEach((seat) => {
-      let indexFila: number = +seat.substring(0, 1);
-      let indexPosto: number = +seat.substring(2);
-      posti.push(this.getLetter(indexFila) + (indexPosto + 1));
-    });
-    return posti;
-  }
-  getCurrentPostiPalchi() {
-    let posti: string[] = [];
-    let postiPalchi: number = this.th.getPostiPalchi();
-    this.postiPalchi.forEach((seat) => {
-      let indexFila: number = +seat.substring(0, 1);
-      let indexPosto: number = +seat.substring(2);
-      let i: number = indexFila + 1;
-      let j: number = indexPosto + 1;
-
-      //Grazie anche a Domenico per la serata passata a trovare questa formula :)
-      posti.push('Pa ' + (i * j + (postiPalchi - j) * (i - 1)));
-    });
-    return posti;
   }
 
   ngOnInit() {}

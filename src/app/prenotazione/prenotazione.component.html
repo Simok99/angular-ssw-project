@@ -19,9 +19,7 @@
       [attr.data-index]="indicePosto"
       [ngStyle]="{
         'background-color':
-          getCurrentPostiPlatea().indexOf(
-            posto.substring(0, posto.indexOf('-'))
-          ) !== -1
+          postiPrenotati.indexOf(posto.substring(0, posto.indexOf('-'))) !== -1
             ? 'green'
             : posto.substring(posto.indexOf('-')).length > 2
             ? 'red'
@@ -59,9 +57,7 @@
       [attr.data-index]="indicePosto"
       [ngStyle]="{
         'background-color':
-          getCurrentPostiPalchi().indexOf(
-            posto.substring(0, posto.indexOf('-'))
-          ) !== -1
+          postiPrenotati.indexOf(posto.substring(0, posto.indexOf('-'))) !== -1
             ? 'green'
             : posto.substring(posto.indexOf('-')).length > 2
             ? 'red'
@@ -84,14 +80,9 @@
 <br />
 <br />
 
-<p
-  *ngIf="
-    getCurrentPostiPlatea().length !== 0 || getCurrentPostiPalchi().length !== 0
-  "
->
+<p *ngIf="postiPrenotati.length !== 0">
   Stai per prenotare i seguenti posti:
-  <li *ngFor="let posto of getCurrentPostiPlatea()">{{ posto }}</li>
-  <li *ngFor="let posto of getCurrentPostiPalchi()">{{ posto }}</li>
+  <li *ngFor="let posto of postiPrenotati">{{ posto }}</li>
   <br />
   <br />
   <button (click)="confirm()">Conferma</button>
