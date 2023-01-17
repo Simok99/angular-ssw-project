@@ -81,8 +81,9 @@ export class PrenotazioneComponent implements OnInit, OnChanges {
   confirm() {
     //Unica richiesta sequenziale per coerenza DB
     //this.th.requestPrenotazione(this.posti, this.name);
-    console.log(this.postiPlatea.concat(this.postiPalchi));
-    this.prenotazioneEvent.next('confirm');
+    this.prenotazioneEvent.next(
+      'confirm:' + this.postiPlatea.concat(this.postiPalchi)
+    );
   }
 
   //Associa una lettera ad un indice per maggiore leggibilità

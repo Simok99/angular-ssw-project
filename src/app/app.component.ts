@@ -13,6 +13,7 @@ export class AppComponent {
   showT: boolean = true;
   private selezione: number;
   private teatroSel: Teatro;
+  private userInputKey: string;
   showFormName: boolean = false;
   private formName: string;
   showPrenotazioni: boolean = false;
@@ -39,9 +40,32 @@ export class AppComponent {
       }
     }
     //Chiave corretta
+    this.userInputKey = key;
     this.showT = false;
     this.selezione = undefined;
     this.showFormName = true;
+  }
+
+  private fetchPrenotazioni() {
+    //Effettua un refresh dei dati delle prenotazioni dal service kvaas
+    this.kvaas.getData(this.userInputKey).subscribe({
+      next: (data: any) => this.teatroSel.updateTheater(data),
+      error: (e) => {
+        alert('Impossibile caricare le prenotazioni dal server. Errore: ' + e);
+        this.doLogout();
+      },
+    });
+  }
+
+  private requestPrenotazione(posti: Array<string>, name: string) {
+    //Controlla che i posti selezionati siano disponibili
+    this.fetchPrenotazioni();
+  }
+
+  private setPrenotazioni() {
+    //Aggiorna this.prenotazioni ed effettua una set con il service kvaas
+    this.fetchPrenotazioni();
+    //Ritorna true se tutto ok, false in caso di errore
   }
 
   receiveName($event: string) {
@@ -51,31 +75,29 @@ export class AppComponent {
   }
 
   receivePrenotazione($event: string) {
-    console.log($event);
-    switch ($event) {
-      case 'exit':
-        this.doLogout();
-        break;
-      case 'confirm':
-        this.doConfirm();
-        break;
-      default:
-        alert('Errore tecnico');
-        this.doLogout();
-        break;
+    if ($event.startsWith('confirm')) {
+      let data: string = $event.substring($event.indexOf(':'));
+      this.doConfirm(data);
+      return;
+    } else if ($event === 'exit') {
+      this.doLogout();
+      return;
     }
+    alert('Errore tecnico');
+    this.doLogout();
     //L'utente ha effettuato una prenotazione oppure ha effettuato logout
     //TODO reimpostare schermata iniziale o mantenere prenotazioni?
   }
 
-  doLogout() {
+  private doLogout() {
+    this.userInputKey = undefined;
     this.showPrenotazioni = false;
     this.selezione = undefined;
     this.showFormName = false;
     this.showT = true;
   }
 
-  doConfirm() {
+  private doConfirm(data: string) {
     //TODO implement
   }
 
@@ -89,7 +111,7 @@ export class AppComponent {
     return this.formName;
   }
   getTeatroSel() {
-    return this.teatroSel;
+    return structuredClone(this.teatroSel);
   }
 }
 
@@ -137,20 +159,15 @@ export class Teatro {
     );
   }
 
-  private fetchPrenotazioni() {
-    //Effettua un refresh dei dati delle prenotazioni dal service kvaas
-    //TODO match key, effettuare get
-  }
-
-  public requestPrenotazione(posti: Array<string>, name: string) {
-    //Controlla che i posti selezionati siano disponibili
-    this.fetchPrenotazioni();
-  }
-
-  public setPrenotazioni() {
-    //Aggiorna this.prenotazioni ed effettua una set con il service kvaas
-    this.fetchPrenotazioni();
-    //Ritorna true se tutto ok, false in caso di errore
+  public updateTheater(JSONData: any) {
+    //Funzione usata per aggiornare il teatro con le prenotazioni ottenute da kvaas
+    let json: any = JSON.parse(JSONData);
+    for (let i = 0; i < this.filePlatea; i++) {
+      for (let j = 0; j < this.filePalchi; j++) {
+        console.log(json.data[i][j]);
+        //this.platea[i][j] = json.data[i][j]
+      }
+    }
   }
 
   public getId() {
