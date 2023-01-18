@@ -51,7 +51,20 @@ export class AppComponent {
   private fetchPrenotazioni() {
     //Effettua un refresh dei dati delle prenotazioni dal service kvaas
     this.kvaas.getData(this.userInputKey).subscribe({
-      next: (data: any) => this.teatroSel.updateTheater(data),
+      next: (data: any) => {
+        let response: string = JSON.parse(data);
+        if (response.search('non esiste') !== -1) {
+          this.messagePar =
+            'Errore: Impossibile caricare le prenotazioni dal server. (chiave non trovata)';
+          this.showMessagePar = true;
+          setTimeout(() => {
+            this.showMessagePar = false;
+          }, 3000);
+          return false;
+        }
+
+        this.teatroSel.updateTheater(data);
+      },
       error: (e) => {
         this.messagePar =
           'Impossibile caricare le prenotazioni dal server. Errore: ' + e;
@@ -65,15 +78,92 @@ export class AppComponent {
     return true;
   }
 
-  private requestPrenotazione(posti: string, name: string) {
+  private requestPrenotazione(posti: string, nome: string) {
+    //Aggiorna i dati delle prenotazioni
+    //if (!this.fetchPrenotazioni()) return false; //Impossibile caricare le prenotazioni dal DB
+
     //Controlla che i posti selezionati siano disponibili
-    if (!this.fetchPrenotazioni()) return false;
+    let currentPlatea: Array<string>[] = this.teatroSel.getPlatea();
+    let currentPalchi: Array<string>[] = this.teatroSel.getPalchi();
+
+    let requestedPosti: Array<string> = posti.split(';');
+
+    let requestedPostiPlatea: Array<string> = requestedPosti[0]
+      .replace('platea:', '')
+      .split(',');
+    let requestedPostiPalchi: Array<string> = requestedPosti[1]
+      .replace('palchi:', '')
+      .split(',');
+
+    for (let filaPosto of requestedPostiPlatea) {
+      let fila: number = +filaPosto.substring(0, filaPosto.indexOf('-'));
+      let posto: number = +filaPosto.substring(filaPosto.indexOf('-') + 1);
+
+      if (currentPlatea[fila][posto].length > 0) {
+        //Posto richiesto già prenotato
+        return false;
+      }
+      //Posto libero, lo prenoto
+      currentPlatea[fila][posto] = nome;
+    }
+
+    for (let filaPosto of requestedPostiPalchi) {
+      let fila: number = +filaPosto.substring(0, filaPosto.indexOf('-'));
+      let posto: number = +filaPosto.substring(filaPosto.indexOf('-') + 1);
+
+      if (currentPalchi[fila][posto].length > 0) {
+        //Posto richiesto già prenotato
+        return false;
+      }
+      //Posto libero, lo prenoto
+      currentPalchi[fila][posto] = nome;
+    }
+
+    //Tutti i posti richiesti sono segnati come prenotati, effettuo una set sul DB
+    if (!this.setPrenotazioni(currentPlatea, currentPalchi)) {
+      alert('Errore: Impossibile salvare la prenotazione sul server.');
+      return false;
+    }
+
+    //Prenotazione effettuata
+    return true;
   }
 
-  private setPrenotazioni() {
-    //Aggiorna this.prenotazioni ed effettua una set con il service kvaas
-    this.fetchPrenotazioni();
+  private setPrenotazioni(
+    currentPlatea: Array<string>[],
+    currentPalchi: Array<string>[]
+  ) {
+    //Effettua una set con il service kvaas
     //Ritorna true se tutto ok, false in caso di errore
+
+    this.kvaas
+      .setData(this.userInputKey, currentPlatea.concat(currentPalchi))
+      .subscribe({
+        next: (data: any) => {
+          let response: string = JSON.parse(data);
+          if (response.search('400') !== -1) {
+            this.messagePar =
+              'Errore: Impossibile salvare la prenotazione sul server. (chiave non trovata)';
+            this.showMessagePar = true;
+            setTimeout(() => {
+              this.showMessagePar = false;
+            }, 3000);
+            return false;
+          }
+        },
+        error: (e) => {
+          this.messagePar =
+            'Impossibile salvare la prenotazione sul server. Errore: ' + e;
+          this.showMessagePar = true;
+          setTimeout(() => {
+            this.showMessagePar = false;
+          }, 3000);
+          return false;
+        },
+      });
+
+    //Prenotazione salvata sul server
+    return true;
   }
 
   receiveName($event: string) {
@@ -109,10 +199,10 @@ export class AppComponent {
   private doConfirm(data: string) {
     //TODO implement
     console.log('DOCONFIRM DATA:' + data);
-    /*if (!this.requestPrenotazione(data, this.formName)) {
+    if (!this.requestPrenotazione(data, this.formName)) {
       //Errore nella prenotazione
       return;
-    }*/
+    }
 
     //Prenotazione effettuata
     this.messagePar =
