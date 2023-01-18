@@ -19,6 +19,8 @@ export class PrenotazioneComponent implements OnInit, OnChanges {
   @Input() th: Teatro;
   @Output() prenotazioneEvent = new EventEmitter<string>();
 
+  confirmDisabled: boolean = false;
+
   buttonsPlatea: Array<string>[];
   buttonsPalchi: Array<string>[];
 
@@ -43,7 +45,6 @@ export class PrenotazioneComponent implements OnInit, OnChanges {
         posto = posto.concat(
           this.getLetter(indiceFila) + (indicePosto + 1) + '- ' + nome
         );
-        //console.log(posto.substring(0, posto.indexOf('-')));
         this.buttonsPlatea[indiceFila][indicePosto] = posto;
       });
     });
@@ -88,11 +89,10 @@ export class PrenotazioneComponent implements OnInit, OnChanges {
   }
 
   confirm() {
-    //Unica richiesta sequenziale per coerenza DB
-    //this.th.requestPrenotazione(this.posti, this.name);
-    this.prenotazioneEvent.next(
-      'confirm:' + this.postiPlatea.concat(this.postiPalchi)
-    );
+    this.confirmDisabled = true;
+    let data: string =
+      'confirm:platea:' + this.postiPlatea + ';palchi:' + this.postiPalchi;
+    this.prenotazioneEvent.next(data);
   }
 
   //Associa una lettera ad un indice per maggiore leggibilità

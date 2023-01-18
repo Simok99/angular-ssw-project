@@ -14,6 +14,8 @@ export class AppComponent {
   private selezione: number;
   private teatroSel: Teatro;
   private userInputKey: string;
+  showMessagePar: boolean = false;
+  messagePar: string = '';
   showFormName: boolean = false;
   private formName: string;
   showPrenotazioni: boolean = false;
@@ -51,15 +53,21 @@ export class AppComponent {
     this.kvaas.getData(this.userInputKey).subscribe({
       next: (data: any) => this.teatroSel.updateTheater(data),
       error: (e) => {
-        alert('Impossibile caricare le prenotazioni dal server. Errore: ' + e);
-        this.doLogout();
+        this.messagePar =
+          'Impossibile caricare le prenotazioni dal server. Errore: ' + e;
+        this.showMessagePar = true;
+        setTimeout(() => {
+          this.showMessagePar = false;
+        }, 3000);
+        return false;
       },
     });
+    return true;
   }
 
-  private requestPrenotazione(posti: Array<string>, name: string) {
+  private requestPrenotazione(posti: string, name: string) {
     //Controlla che i posti selezionati siano disponibili
-    this.fetchPrenotazioni();
+    if (!this.fetchPrenotazioni()) return false;
   }
 
   private setPrenotazioni() {
@@ -75,8 +83,9 @@ export class AppComponent {
   }
 
   receivePrenotazione($event: string) {
+    //L'utente ha effettuato una prenotazione oppure ha effettuato logout
     if ($event.startsWith('confirm')) {
-      let data: string = $event.substring($event.indexOf(':'));
+      let data: string = $event.substring($event.indexOf(':') + 1);
       this.doConfirm(data);
       return;
     } else if ($event === 'exit') {
@@ -85,12 +94,12 @@ export class AppComponent {
     }
     alert('Errore tecnico');
     this.doLogout();
-    //L'utente ha effettuato una prenotazione oppure ha effettuato logout
-    //TODO reimpostare schermata iniziale o mantenere prenotazioni?
   }
 
   private doLogout() {
     this.userInputKey = undefined;
+    this.messagePar = undefined;
+    this.showMessagePar = false;
     this.showPrenotazioni = false;
     this.selezione = undefined;
     this.showFormName = false;
@@ -99,6 +108,30 @@ export class AppComponent {
 
   private doConfirm(data: string) {
     //TODO implement
+    console.log('DOCONFIRM DATA:' + data);
+    /*if (!this.requestPrenotazione(data, this.formName)) {
+      //Errore nella prenotazione
+      return;
+    }*/
+
+    //Prenotazione effettuata
+    this.messagePar =
+      'Successo! ' +
+      this.formName +
+      ', ti aspettiamo stasera al teatro ' +
+      this.teatroSel.getId() +
+      ' per vedere ' +
+      this.teatroSel.getSpettacolo() +
+      '!';
+    this.showMessagePar = true;
+
+    //Per tornare alla schermata iniziale usare doLogout(), altrimenti basta fare refresh UI con showPrenotazioni
+    this.showPrenotazioni = false;
+    setTimeout(() => {
+      this.showMessagePar = false;
+      //this.doLogout();
+      this.showPrenotazioni = true;
+    }, 30000); //TODO reimpostare a 10000
   }
 
   getTeatri() {

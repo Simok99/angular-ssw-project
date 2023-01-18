@@ -15,7 +15,9 @@
   >
     <button
       *ngFor="let posto of fila; let indicePosto = index"
-      [disabled]="posto.substring(posto.indexOf('-')).length > 2"
+      [disabled]="
+        confirmDisabled || posto.substring(posto.indexOf('-')).length > 2
+      "
       [attr.data-index]="indicePosto"
       [ngStyle]="{
         'background-color':
@@ -53,7 +55,9 @@
   >
     <button
       *ngFor="let posto of fila; let indicePosto = index"
-      [disabled]="posto.substring(posto.indexOf('-')).length > 2"
+      [disabled]="
+        confirmDisabled || posto.substring(posto.indexOf('-')).length > 2
+      "
       [attr.data-index]="indicePosto"
       [ngStyle]="{
         'background-color':
@@ -85,5 +89,5 @@
   <li *ngFor="let posto of postiPrenotati">{{ posto }}</li>
   <br />
   <br />
-  <button (click)="confirm()">Conferma</button>
+  <button (click)="confirm()" [disabled]="confirmDisabled">Conferma</button>
 </p>

@@ -10,6 +10,12 @@
     </button>
   </li>
 </div>
+<p
+  *ngIf="showMessagePar"
+  [ngStyle]="{ color: messagePar.indexOf('Successo') !== -1 ? 'green' : 'red' }"
+>
+  {{ messagePar }}
+</p>
 <p id="requestPar" *ngIf="getSelection() !== undefined">
   Per prenotare posti al teatro {{ getSelection() }}, inserisci la chiave dello
   spettacolo:
