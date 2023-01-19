@@ -49,8 +49,10 @@ export class AppComponent {
     this.showFormName = true;
   }
 
-  private updateTheaterFromDB(newT: Teatro) {
-    this.teatroSel = newT;
+  private updateTheaterFromDB(newT: any) {
+    console.log(this.teatroSel);
+    //Object.assign copia tutti i valori del JSON nei campi del'oggetto target
+    Object.assign(this.teatroSel, newT);
   }
 
   private fetchPrenotazioni() {
@@ -68,7 +70,7 @@ export class AppComponent {
           return false;
         }
 
-        this.updateTheaterFromDB(data);
+        this.updateTheaterFromDB(JSON.parse(data));
         return true;
       },
       error: (e) => {
@@ -241,13 +243,12 @@ export class AppComponent {
       '!';
     this.showMessagePar = true;
 
-    //Per tornare alla schermata iniziale usare doLogout(), altrimenti basta fare refresh UI con showPrenotazioni
-    this.showPrenotazioni = false;
+    alert('Prenotazione effettuata!');
+
+    //Per tornare alla schermata iniziale uso doLogout()
     setTimeout(() => {
-      this.showMessagePar = false;
-      //this.doLogout();
-      this.showPrenotazioni = true;
-    }, 30000); //TODO reimpostare a 10000
+      this.doLogout();
+    }, 20000);
   }
 
   getTeatri() {
