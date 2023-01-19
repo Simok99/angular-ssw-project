@@ -38,7 +38,7 @@ export class PrenotazioneComponent implements OnInit, OnChanges {
 
   //Funzione usata per costruire l'interfaccia con bottoni
   buildUI() {
-    this.buttonsPlatea = this.th.getPlatea();
+    this.buttonsPlatea = structuredClone(this.th.getPlatea());
     this.buttonsPlatea.map((fila, indiceFila) => {
       let p = fila.map((nome, indicePosto) => {
         let posto: string = '';
@@ -49,7 +49,7 @@ export class PrenotazioneComponent implements OnInit, OnChanges {
       });
     });
 
-    this.buttonsPalchi = this.th.getPalchi();
+    this.buttonsPalchi = structuredClone(this.th.getPalchi());
     let i: number = 0;
     this.buttonsPalchi.map((fila, indiceFila) => {
       let p = fila.map((nome, indicePosto) => {

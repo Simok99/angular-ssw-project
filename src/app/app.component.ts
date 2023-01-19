@@ -45,14 +45,19 @@ export class AppComponent {
     this.userInputKey = key;
     this.showT = false;
     this.selezione = undefined;
+    this.fetchPrenotazioni();
     this.showFormName = true;
+  }
+
+  private updateTheaterFromDB(newT: Teatro) {
+    this.teatroSel = newT;
   }
 
   private fetchPrenotazioni() {
     //Effettua un refresh dei dati delle prenotazioni dal service kvaas
     this.kvaas.getData(this.userInputKey).subscribe({
       next: (data: any) => {
-        let response: string = JSON.parse(data);
+        let response: string = data;
         if (response.search('non esiste') !== -1) {
           this.messagePar =
             'Errore: Impossibile caricare le prenotazioni dal server. (chiave non trovata)';
@@ -63,7 +68,8 @@ export class AppComponent {
           return false;
         }
 
-        this.teatroSel.updateTheater(data);
+        this.updateTheaterFromDB(data);
+        return true;
       },
       error: (e) => {
         this.messagePar =
@@ -72,6 +78,7 @@ export class AppComponent {
         setTimeout(() => {
           this.showMessagePar = false;
         }, 3000);
+        this.doLogout();
         return false;
       },
     });
@@ -80,7 +87,7 @@ export class AppComponent {
 
   private requestPrenotazione(posti: string, nome: string) {
     //Aggiorna i dati delle prenotazioni
-    //if (!this.fetchPrenotazioni()) return false; //Impossibile caricare le prenotazioni dal DB
+    if (!this.fetchPrenotazioni()) return false; //Impossibile caricare le prenotazioni dal DB
 
     //Controlla che i posti selezionati siano disponibili
     let currentPlatea: Array<string>[] = this.teatroSel.getPlatea();
@@ -136,31 +143,47 @@ export class AppComponent {
     //Effettua una set con il service kvaas
     //Ritorna true se tutto ok, false in caso di errore
 
-    this.kvaas
-      .setData(this.userInputKey, currentPlatea.concat(currentPalchi))
-      .subscribe({
-        next: (data: any) => {
-          let response: string = JSON.parse(data);
-          if (response.search('400') !== -1) {
-            this.messagePar =
-              'Errore: Impossibile salvare la prenotazione sul server. (chiave non trovata)';
-            this.showMessagePar = true;
-            setTimeout(() => {
-              this.showMessagePar = false;
-            }, 3000);
-            return false;
-          }
-        },
-        error: (e) => {
+    let oldPlatea: Array<string>[] = this.teatroSel.getPlatea();
+    let oldPalchi: Array<string>[] = this.teatroSel.getPalchi();
+
+    currentPlatea.forEach((fila, indiceFila) => {
+      fila.forEach((nome, indicePosto) => {
+        if (nome !== '') {
+          oldPlatea[indiceFila][indicePosto] = nome;
+        }
+      });
+    });
+    currentPalchi.forEach((fila, indiceFila) => {
+      fila.forEach((nome, indicePosto) => {
+        if (nome !== '') {
+          oldPalchi[indiceFila][indicePosto] = nome;
+        }
+      });
+    });
+
+    this.kvaas.setData(this.userInputKey, this.teatroSel).subscribe({
+      next: (data: any) => {
+        let response: string = data;
+        if (response.search('400') !== -1) {
           this.messagePar =
-            'Impossibile salvare la prenotazione sul server. Errore: ' + e;
+            'Errore: Impossibile salvare la prenotazione sul server. (chiave non trovata)';
           this.showMessagePar = true;
           setTimeout(() => {
             this.showMessagePar = false;
           }, 3000);
           return false;
-        },
-      });
+        }
+      },
+      error: (e) => {
+        this.messagePar =
+          'Impossibile salvare la prenotazione sul server. Errore: ' + e;
+        this.showMessagePar = true;
+        setTimeout(() => {
+          this.showMessagePar = false;
+        }, 3000);
+        return false;
+      },
+    });
 
     //Prenotazione salvata sul server
     return true;
@@ -282,17 +305,26 @@ export class Teatro {
     );
   }
 
-  public updateTheater(JSONData: any) {
+  /*public updateTheater(data: string) {
     //TODO Controllo key prima di aggiornare
-    //Funzione usata per aggiornare il teatro con le prenotazioni ottenute da kvaas
-    let json: any = JSON.parse(JSONData);
-    for (let i = 0; i < this.filePlatea; i++) {
-      for (let j = 0; j < this.filePalchi; j++) {
-        console.log(json.data[i][j]);
-        //this.platea[i][j] = json.data[i][j]
-      }
-    }
-  }
+    //Funzione usata per aggiornare il teatro con l'oggetto ottenuto da kvaas
+    //let json: any = JSON.parse(JSONData);
+    /*console.log('DATA RECEIVED:' + data);
+    let file: Array<string>[] = JSON.parse('[' + data + ']');
+    console.log(file);
+    let counter = 0;
+    file.forEach((fila, indiceFila) => {
+      fila.forEach((nome, indicePosto) => {
+        if (counter < this.getFilePlatea() && nome !== '') {
+          this.platea[indiceFila][indicePosto] = nome;
+        }
+        if (nome !== '') {
+          this.palchi[indiceFila][indicePosto] = nome;
+        }
+        counter++;
+      });
+    });
+  }*/
 
   public getId() {
     return this.id;
@@ -314,11 +346,11 @@ export class Teatro {
   }
 
   public getPlatea() {
-    return structuredClone(this.platea);
+    return this.platea;
   }
 
   public getPalchi() {
-    return structuredClone(this.palchi);
+    return this.palchi;
   }
 
   //TODO Aggiungere setter per implementazione bottone aggiungi teatro
