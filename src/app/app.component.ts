@@ -143,23 +143,26 @@ export class AppComponent {
     //Effettua una set con il service kvaas
     //Ritorna true se tutto ok, false in caso di errore
 
-    let oldPlatea: Array<string>[] = this.teatroSel.getPlatea();
-    let oldPalchi: Array<string>[] = this.teatroSel.getPalchi();
+    let newPlatea: Array<string>[] = this.teatroSel.getPlatea();
+    let newPalchi: Array<string>[] = this.teatroSel.getPalchi();
 
     currentPlatea.forEach((fila, indiceFila) => {
       fila.forEach((nome, indicePosto) => {
         if (nome !== '') {
-          oldPlatea[indiceFila][indicePosto] = nome;
+          newPlatea[indiceFila][indicePosto] = nome;
         }
       });
     });
     currentPalchi.forEach((fila, indiceFila) => {
       fila.forEach((nome, indicePosto) => {
         if (nome !== '') {
-          oldPalchi[indiceFila][indicePosto] = nome;
+          newPalchi[indiceFila][indicePosto] = nome;
         }
       });
     });
+
+    this.teatroSel.setPlatea(newPlatea);
+    this.teatroSel.setPalchi(newPalchi);
 
     this.kvaas.setData(this.userInputKey, this.teatroSel).subscribe({
       next: (data: any) => {
@@ -346,11 +349,19 @@ export class Teatro {
   }
 
   public getPlatea() {
-    return this.platea;
+    return structuredClone(this.platea);
+  }
+
+  public setPlatea(platea: Array<string>[]) {
+    this.platea = platea;
   }
 
   public getPalchi() {
-    return this.palchi;
+    return structuredClone(this.palchi);
+  }
+
+  public setPalchi(palchi: Array<string>[]) {
+    this.palchi = palchi;
   }
 
   //TODO Aggiungere setter per implementazione bottone aggiungi teatro
