@@ -80,7 +80,7 @@ export class PrenotazioneComponent implements OnInit, OnChanges {
     this.postiPrenotati.push('Pa ' + (i * j + (postiPalchi - j) * (i - 1)));
   }
 
-  warnPosto(posto: string) {
+  warnPosto() {
     alert('Il posto selezionato è già stato prenotato');
   }
 

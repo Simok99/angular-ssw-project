@@ -31,7 +31,7 @@
       }"
       (click)="
         posto.substring(posto.indexOf('-')).length > 2
-          ? warnPosto(posto)
+          ? warnPosto()
           : addPostoPlatea(indiceFila, indicePosto)
       "
     >
@@ -71,7 +71,7 @@
       }"
       (click)="
         posto.substring(posto.indexOf('-')).length > 2
-          ? warnPosto(posto)
+          ? warnPosto()
           : addPostoPalchi(indiceFila, indicePosto)
       "
     >

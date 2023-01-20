@@ -8,16 +8,21 @@ import { KvaasService } from './kvaas.service';
 })
 export class AppComponent {
   constructor(private kvaas: KvaasService) {}
+
   private teatro1: Teatro = new Teatro(1, 'Shakespeare', 7, 4, 10, 6);
   private teatri: Array<Teatro> = [this.teatro1];
   showT: boolean = true;
   private selezione: number;
   private teatroSel: Teatro;
+
   private userInputKey: string;
+
   showMessagePar: boolean = false;
   messagePar: string = '';
+
   showFormName: boolean = false;
   private formName: string;
+
   showPrenotazioni: boolean = false;
 
   selectT(id: number) {
@@ -32,7 +37,6 @@ export class AppComponent {
   }
 
   requestAccess(key: string) {
-    //TODO match con key generata tramite new del service kvaas
     if (this.selezione === 1) {
       //Teatro default selezionato
       if (!this.kvaas.matchDefaultKey(key)) {
@@ -47,12 +51,6 @@ export class AppComponent {
     this.selezione = undefined;
     this.fetchPrenotazioni();
     this.showFormName = true;
-  }
-
-  private updateTheaterFromDB(newT: any) {
-    console.log(this.teatroSel);
-    //Object.assign copia tutti i valori del JSON nei campi del'oggetto target
-    Object.assign(this.teatroSel, newT);
   }
 
   private fetchPrenotazioni() {
@@ -85,6 +83,11 @@ export class AppComponent {
       },
     });
     return true;
+  }
+
+  private updateTheaterFromDB(newT: any) {
+    //Object.assign copia tutti i valori del JSON nei campi del'oggetto target
+    Object.assign(this.teatroSel, newT);
   }
 
   private requestPrenotazione(posti: string, nome: string) {
@@ -225,8 +228,6 @@ export class AppComponent {
   }
 
   private doConfirm(data: string) {
-    //TODO implement
-    console.log('DOCONFIRM DATA:' + data);
     if (!this.requestPrenotazione(data, this.formName)) {
       //Errore nella prenotazione
       return;
@@ -276,8 +277,6 @@ export class Teatro {
   private platea: Array<string>[];
   private palchi: Array<string>[];
 
-  private prenotazioni: Array<string>[];
-
   constructor(
     id: number,
     spettacolo: string,
@@ -308,27 +307,6 @@ export class Teatro {
       Array.from({ length: this.postiPalchi }, () => '')
     );
   }
-
-  /*public updateTheater(data: string) {
-    //TODO Controllo key prima di aggiornare
-    //Funzione usata per aggiornare il teatro con l'oggetto ottenuto da kvaas
-    //let json: any = JSON.parse(JSONData);
-    /*console.log('DATA RECEIVED:' + data);
-    let file: Array<string>[] = JSON.parse('[' + data + ']');
-    console.log(file);
-    let counter = 0;
-    file.forEach((fila, indiceFila) => {
-      fila.forEach((nome, indicePosto) => {
-        if (counter < this.getFilePlatea() && nome !== '') {
-          this.platea[indiceFila][indicePosto] = nome;
-        }
-        if (nome !== '') {
-          this.palchi[indiceFila][indicePosto] = nome;
-        }
-        counter++;
-      });
-    });
-  }*/
 
   public getId() {
     return this.id;
