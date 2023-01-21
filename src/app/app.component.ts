@@ -61,25 +61,11 @@ export class AppComponent {
     this.showThParams = true;
   }
 
-  saveTh() {
-    this.saveEnabled = false;
-
-    this.kvaas.newAPIKey().subscribe({
+  async genKey() {
+    //TODO wait for key generation
+    await this.kvaas.newAPIKey().subscribe({
       next: (data: any) => {
-        //Teatro salvato
         this.newAPIKey = data;
-        this.showAddT = true;
-        this.showAddTPar = false;
-        this.showThParams = false;
-
-        this.messagePar =
-          'Successo! Teatro salvato con chiave associata: ' +
-          this.newAPIKey +
-          '\nAnnota la chiave, poi ricarica la pagina.';
-
-        this.showMessagePar = true;
-
-        alert('Nuovo teatro salvato con chiave associata: '+this.newAPIKey);
       },
       error: (e) => {
         this.messagePar =
@@ -91,6 +77,15 @@ export class AppComponent {
         this.doLogout();
       },
     });
+  }
+
+  saveTh() {
+    this.saveEnabled = false;
+
+    if (!this.genKey()) {
+      alert('Errore nella generazione della chiave');
+      return;
+    }
 
     this.kvaas.setData(this.newAPIKey, this.teatroSel).subscribe({
       next: (data: any) => {
@@ -104,6 +99,20 @@ export class AppComponent {
           }, 3000);
           this.doLogout();
         }
+
+        //Teatro salvato
+        this.showAddT = true;
+        this.showAddTPar = false;
+        this.showThParams = false;
+
+        this.messagePar =
+          'Successo! Teatro salvato con chiave associata: ' +
+          this.newAPIKey +
+          '\nAnnota la chiave, poi ricarica la pagina.';
+
+        this.showMessagePar = true;
+
+        alert('Nuovo teatro salvato con chiave associata: ' + this.newAPIKey);
       },
       error: (e) => {
         this.messagePar =
