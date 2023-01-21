@@ -9,6 +9,84 @@
       {{ teatro.getSpettacolo() }}
     </button>
   </li>
+  <br />
+  <button *ngIf="showAddT" (click)="addTh()">+</button>
+</div>
+
+<p id="addThPar" *ngIf="showAddTPar">
+  Per aggiungere un teatro, inserisci il segreto:
+  <input
+    placeholder="Inserisci il segreto"
+    #key
+    (keyup.enter)="inputSecret(key.value)"
+  />
+</p>
+<div *ngIf="showThParams">
+  <input
+    *ngIf="showIdParam"
+    size="150px"
+    placeholder="Inserisci un id per il teatro"
+    type="number"
+    #key
+    (keyup.enter)="showIdParam = false; getTeatroSel().setId(+key.value)"
+  />
+  <br />
+  <input
+    *ngIf="showTitleParam"
+    size="150px"
+    placeholder="Inserisci un titolo per lo spettacolo del teatro"
+    #key
+    (keyup.enter)="
+      showTitleParam = false; getTeatroSel().setSpettacolo(key.value)
+    "
+  />
+  <br />
+  <input
+    *ngIf="showFilePlParam"
+    size="150px"
+    placeholder="Inserisci il numero di file della platea"
+    type="number"
+    #key
+    (keyup.enter)="
+      showFilePlParam = false; getTeatroSel().setFilePlatea(+key.value)
+    "
+  />
+  <br />
+  <input
+    *ngIf="showPostiPlParam"
+    size="150px"
+    placeholder="Inserisci il numero di posti della platea"
+    type="number"
+    #key
+    (keyup.enter)="
+      showPostiPlParam = false; getTeatroSel().setPostiPlatea(+key.value)
+    "
+  />
+  <br />
+  <input
+    *ngIf="showFilePaParam"
+    size="150px"
+    placeholder="Inserisci il numero di file dei palchi"
+    type="number"
+    #key
+    (keyup.enter)="
+      showFilePaParam = false; getTeatroSel().setFilePalchi(+key.value)
+    "
+  />
+  <br />
+  <input
+    *ngIf="showPostiPaParam"
+    size="150px"
+    placeholder="Inserisci il numero di posti dei palchi"
+    type="number"
+    #key
+    (keyup.enter)="
+      showPostiPaParam = false; getTeatroSel().setPostiPalchi(+key.value)
+    "
+  />
+  <br />
+  <br />
+  <button [disabled]="!saveEnabled" (click)="saveTh()">Salva</button>
 </div>
 <p
   *ngIf="showMessagePar"

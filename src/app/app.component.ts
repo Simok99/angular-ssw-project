@@ -17,6 +17,19 @@ export class AppComponent {
 
   private userInputKey: string;
 
+  showAddT: boolean = true;
+  showAddTPar: boolean = false;
+  showThParams: boolean = false;
+  showIdParam: boolean = true;
+  showTitleParam: boolean = true;
+  showFilePlParam: boolean = true;
+  showPostiPlParam: boolean = true;
+  showFilePaParam: boolean = true;
+  showPostiPaParam: boolean = true;
+
+  saveEnabled: boolean = true;
+  newAPIKey: string;
+
   showMessagePar: boolean = false;
   messagePar: string = '';
 
@@ -34,6 +47,74 @@ export class AppComponent {
       }
     }
     alert('Errore: teatro non trovato, riprovare');
+  }
+
+  addTh() {
+    this.showAddT = false;
+    this.showAddTPar = true;
+  }
+
+  inputSecret(secret: string) {
+    if (!this.kvaas.matchSecret(secret)) alert('Segreto errato');
+    this.teatroSel = new Teatro(-1, 'undef', -1, -1, -1, -1);
+    this.showAddTPar = false;
+    this.showThParams = true;
+  }
+
+  saveTh() {
+    this.saveEnabled = false;
+
+    this.kvaas.newAPIKey().subscribe({
+      next: (data: any) => {
+        //Teatro salvato
+        this.newAPIKey = data;
+        this.showAddT = true;
+        this.showAddTPar = false;
+        this.showThParams = false;
+
+        this.messagePar =
+          'Successo! Teatro salvato con chiave associata: ' +
+          this.newAPIKey +
+          '\nAnnota la chiave, poi ricarica la pagina.';
+
+        this.showMessagePar = true;
+
+        alert('Nuovo teatro salvato con chiave associata: '+this.newAPIKey);
+      },
+      error: (e) => {
+        this.messagePar =
+          'Errore: il server non ha potuto generare una nuova chiave. ' + e;
+        this.showMessagePar = true;
+        setTimeout(() => {
+          this.showMessagePar = false;
+        }, 3000);
+        this.doLogout();
+      },
+    });
+
+    this.kvaas.setData(this.newAPIKey, this.teatroSel).subscribe({
+      next: (data: any) => {
+        let response: string = data;
+        if (response.search('400') !== -1) {
+          this.messagePar =
+            'Errore: Impossibile salvare il nuovo teatro sul server. (chiave non trovata)';
+          this.showMessagePar = true;
+          setTimeout(() => {
+            this.showMessagePar = false;
+          }, 3000);
+          this.doLogout();
+        }
+      },
+      error: (e) => {
+        this.messagePar =
+          'Impossibile salvare il nuovo teatro sul server. Errore: ' + e;
+        this.showMessagePar = true;
+        setTimeout(() => {
+          this.showMessagePar = false;
+        }, 3000);
+        this.doLogout();
+      },
+    });
   }
 
   requestAccess(key: string) {
@@ -331,6 +412,30 @@ export class Teatro {
     return structuredClone(this.platea);
   }
 
+  public setId(newId: number) {
+    this.id = newId;
+  }
+
+  public setSpettacolo(titoloSpettacolo: string) {
+    this.spettacolo = titoloSpettacolo;
+  }
+
+  public setFilePlatea(nfile: number) {
+    this.filePlatea = nfile;
+  }
+
+  public setFilePalchi(nfile: number) {
+    this.filePalchi = nfile;
+  }
+
+  public setPostiPlatea(nposti: number) {
+    this.postiPlatea = nposti;
+  }
+
+  public setPostiPalchi(nposti: number) {
+    this.postiPalchi = nposti;
+  }
+
   public setPlatea(platea: Array<string>[]) {
     this.platea = platea;
   }
@@ -342,6 +447,4 @@ export class Teatro {
   public setPalchi(palchi: Array<string>[]) {
     this.palchi = palchi;
   }
-
-  //TODO Aggiungere setter per implementazione bottone aggiungi teatro
 }

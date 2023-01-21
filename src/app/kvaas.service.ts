@@ -19,6 +19,11 @@ export class KvaasService {
 
   constructor(private http: HttpClient) {}
 
+  public matchSecret(secret: string) {
+    if (this.secret === secret) return true;
+    return false;
+  }
+
   public matchDefaultKey(inputKey: string) {
     if (inputKey === this.firstTheaterKey) return true;
     return false;
