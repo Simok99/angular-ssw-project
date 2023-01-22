@@ -40,6 +40,7 @@ export class AppComponent {
   showPrenotazioni: boolean = false;
 
   selectT(id: number) {
+    this.showAddT = false;
     for (let teatro of this.teatri) {
       if (teatro.getId() === id) {
         this.selezione = id;
@@ -51,6 +52,7 @@ export class AppComponent {
   }
 
   addTh() {
+    this.showT = false;
     this.showAddT = false;
     this.showAddTPar = true;
   }
@@ -62,14 +64,64 @@ export class AppComponent {
     this.showThParams = true;
   }
 
-  async genKey() {
-    //TODO review
-    await firstValueFrom(this.kvaas.newAPIKey()).then(
+  genKey(): Promise<Object> {
+    return firstValueFrom(this.kvaas.newAPIKey());
+  }
+
+  setData(key: string): Promise<Object> {
+    return firstValueFrom(this.kvaas.setData(key, this.teatroSel));
+  }
+
+  saveTh() {
+    this.saveEnabled = false;
+
+    this.genKey().then(
       (newKey: string) => {
         this.newAPIKey = newKey;
-        return true;
+        this.setData(this.newAPIKey).then(
+          (response: string) => {
+            if (response.search('400') !== -1) {
+              this.messagePar =
+                'Errore: Impossibile salvare il nuovo teatro sul server. (chiave non trovata)';
+              this.showMessagePar = true;
+              setTimeout(() => {
+                this.showMessagePar = false;
+              }, 3000);
+              this.doLogout();
+              return;
+            }
+
+            //Teatro salvato correttamente
+            this.showAddT = false;
+            this.showAddTPar = false;
+            this.showThParams = false;
+
+            this.messagePar =
+              'Successo! Teatro salvato con chiave associata: ' +
+              this.newAPIKey +
+              '\n Annota la chiave, poi ricarica la pagina.';
+
+            this.showMessagePar = true;
+
+            alert(
+              'Nuovo teatro salvato con chiave associata: ' + this.newAPIKey
+            );
+            return;
+          },
+          (error: any) => {
+            this.messagePar =
+              'Impossibile salvare il nuovo teatro sul server. Errore: ' +
+              error;
+            this.showMessagePar = true;
+            setTimeout(() => {
+              this.showMessagePar = false;
+            }, 3000);
+            this.doLogout();
+            return;
+          }
+        );
       },
-      (error) => {
+      (error: any) => {
         this.messagePar =
           'Errore: Impossibile salvare il nuovo teatro sul server. (chiave non generata)' +
           error;
@@ -77,58 +129,12 @@ export class AppComponent {
         setTimeout(() => {
           this.showMessagePar = false;
         }, 3000);
+        alert('Errore nella generazione della chiave');
+        this.saveEnabled = true;
         this.doLogout();
-        return false;
+        return;
       }
     );
-    return false;
-  }
-
-  saveTh() {
-    this.saveEnabled = false;
-
-    if (!this.genKey()) {
-      alert('Errore nella generazione della chiave');
-      return;
-    }
-
-    this.kvaas.setData(this.newAPIKey, this.teatroSel).subscribe({
-      next: (data: any) => {
-        let response: string = data;
-        if (response.search('400') !== -1) {
-          this.messagePar =
-            'Errore: Impossibile salvare il nuovo teatro sul server. (chiave non trovata)';
-          this.showMessagePar = true;
-          setTimeout(() => {
-            this.showMessagePar = false;
-          }, 3000);
-          this.doLogout();
-        }
-
-        //Teatro salvato
-        this.showAddT = true;
-        this.showAddTPar = false;
-        this.showThParams = false;
-
-        this.messagePar =
-          'Successo! Teatro salvato con chiave associata: ' +
-          this.newAPIKey +
-          '\nAnnota la chiave, poi ricarica la pagina.';
-
-        this.showMessagePar = true;
-
-        alert('Nuovo teatro salvato con chiave associata: ' + this.newAPIKey);
-      },
-      error: (e) => {
-        this.messagePar =
-          'Impossibile salvare il nuovo teatro sul server. Errore: ' + e;
-        this.showMessagePar = true;
-        setTimeout(() => {
-          this.showMessagePar = false;
-        }, 3000);
-        this.doLogout();
-      },
-    });
   }
 
   requestAccess(key: string) {
@@ -144,14 +150,13 @@ export class AppComponent {
     this.userInputKey = key;
     this.showT = false;
     this.selezione = undefined;
-    this.fetchPrenotazioni();
+    this.checkPrenotazioni();
     this.showFormName = true;
   }
 
-  private fetchPrenotazioni() {
-    //Effettua un refresh dei dati delle prenotazioni dal service kvaas
-    this.kvaas.getData(this.userInputKey).subscribe({
-      next: (data: any) => {
+  private checkPrenotazioni() {
+    this.fetchPrenotazioni().then(
+      (data: any) => {
         let response: string = data;
         if (response.search('non esiste') !== -1) {
           this.messagePar =
@@ -160,24 +165,27 @@ export class AppComponent {
           setTimeout(() => {
             this.showMessagePar = false;
           }, 3000);
-          return false;
+          this.doLogout();
         }
 
+        //Risposta ok, aggiorno i dati locali
         this.updateTheaterFromDB(JSON.parse(data));
-        return true;
       },
-      error: (e) => {
+      (error: any) => {
         this.messagePar =
-          'Impossibile caricare le prenotazioni dal server. Errore: ' + e;
+          'Impossibile caricare le prenotazioni dal server. Errore: ' + error;
         this.showMessagePar = true;
         setTimeout(() => {
           this.showMessagePar = false;
         }, 3000);
         this.doLogout();
-        return false;
-      },
-    });
-    return true;
+      }
+    );
+  }
+
+  private fetchPrenotazioni() {
+    //Effettua un refresh dei dati delle prenotazioni dal service kvaas
+    return firstValueFrom(this.kvaas.getData(this.userInputKey));
   }
 
   private updateTheaterFromDB(newT: any) {
@@ -186,8 +194,8 @@ export class AppComponent {
   }
 
   private requestPrenotazione(posti: string, nome: string) {
-    //Aggiorna i dati delle prenotazioni
-    if (!this.fetchPrenotazioni()) return false; //Impossibile caricare le prenotazioni dal DB
+    //Controlla i dati delle prenotazioni
+    this.checkPrenotazioni();
 
     //Controlla che i posti selezionati siano disponibili
     let currentPlatea: Array<string>[] = this.teatroSel.getPlatea();
@@ -227,13 +235,7 @@ export class AppComponent {
     }
 
     //Tutti i posti richiesti sono segnati come prenotati, effettuo una set sul DB
-    if (!this.setPrenotazioni(currentPlatea, currentPalchi)) {
-      alert('Errore: Impossibile salvare la prenotazione sul server.');
-      return false;
-    }
-
-    //Prenotazione effettuata
-    return true;
+    this.setPrenotazioni(currentPlatea, currentPalchi);
   }
 
   private setPrenotazioni(
@@ -264,8 +266,8 @@ export class AppComponent {
     this.teatroSel.setPlatea(newPlatea);
     this.teatroSel.setPalchi(newPalchi);
 
-    this.kvaas.setData(this.userInputKey, this.teatroSel).subscribe({
-      next: (data: any) => {
+    this.setData(this.userInputKey).then(
+      (data: any) => {
         let response: string = data;
         if (response.search('400') !== -1) {
           this.messagePar =
@@ -274,22 +276,36 @@ export class AppComponent {
           setTimeout(() => {
             this.showMessagePar = false;
           }, 3000);
-          return false;
         }
-      },
-      error: (e) => {
+
+        //Prenotazione salvata sul server
+        this.showPrenotazioni = false;
         this.messagePar =
-          'Impossibile salvare la prenotazione sul server. Errore: ' + e;
+          'Successo! ' +
+          this.formName +
+          ', ti aspettiamo stasera al teatro ' +
+          this.teatroSel.getId() +
+          ' per vedere ' +
+          this.teatroSel.getSpettacolo() +
+          '!';
+        this.showMessagePar = true;
+
+        alert('Prenotazione effettuata!');
+
+        //Per tornare alla schermata iniziale uso doLogout()
+        setTimeout(() => {
+          this.doLogout();
+        }, 20000);
+      },
+      (error: any) => {
+        this.messagePar =
+          'Impossibile salvare la prenotazione sul server. Errore: ' + error;
         this.showMessagePar = true;
         setTimeout(() => {
           this.showMessagePar = false;
         }, 3000);
-        return false;
-      },
-    });
-
-    //Prenotazione salvata sul server
-    return true;
+      }
+    );
   }
 
   receiveName($event: string) {
@@ -323,28 +339,7 @@ export class AppComponent {
   }
 
   private doConfirm(data: string) {
-    if (!this.requestPrenotazione(data, this.formName)) {
-      //Errore nella prenotazione
-      return;
-    }
-
-    //Prenotazione effettuata
-    this.messagePar =
-      'Successo! ' +
-      this.formName +
-      ', ti aspettiamo stasera al teatro ' +
-      this.teatroSel.getId() +
-      ' per vedere ' +
-      this.teatroSel.getSpettacolo() +
-      '!';
-    this.showMessagePar = true;
-
-    alert('Prenotazione effettuata!');
-
-    //Per tornare alla schermata iniziale uso doLogout()
-    setTimeout(() => {
-      this.doLogout();
-    }, 20000);
+    this.requestPrenotazione(data, this.formName);
   }
 
   getTeatri() {
