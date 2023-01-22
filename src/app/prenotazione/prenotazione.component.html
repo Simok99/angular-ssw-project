@@ -32,7 +32,9 @@
       (click)="
         posto.substring(posto.indexOf('-')).length > 2
           ? warnPosto()
-          : addPostoPlatea(indiceFila, indicePosto)
+          : postiPrenotati.indexOf(posto.substring(0, posto.indexOf('-'))) == -1
+          ? addPostoPlatea(indiceFila, indicePosto)
+          : removePostoPlatea(indiceFila, indicePosto)
       "
     >
       {{ posto }}
@@ -72,7 +74,9 @@
       (click)="
         posto.substring(posto.indexOf('-')).length > 2
           ? warnPosto()
-          : addPostoPalchi(indiceFila, indicePosto)
+          : postiPrenotati.indexOf(posto.substring(0, posto.indexOf('-'))) == -1
+          ? addPostoPalchi(indiceFila, indicePosto)
+          : removePostoPalchi(indiceFila, indicePosto)
       "
     >
       {{ posto }}

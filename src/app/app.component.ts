@@ -111,7 +111,7 @@ export class AppComponent {
           (error: any) => {
             this.messagePar =
               'Impossibile salvare il nuovo teatro sul server. Errore: ' +
-              error;
+              error.toString();
             this.showMessagePar = true;
             setTimeout(() => {
               this.showMessagePar = false;
@@ -124,7 +124,7 @@ export class AppComponent {
       (error: any) => {
         this.messagePar =
           'Errore: Impossibile salvare il nuovo teatro sul server. (chiave non generata)' +
-          error;
+          error.toString();
         this.showMessagePar = true;
         setTimeout(() => {
           this.showMessagePar = false;
@@ -173,7 +173,8 @@ export class AppComponent {
       },
       (error: any) => {
         this.messagePar =
-          'Impossibile caricare le prenotazioni dal server. Errore: ' + error;
+          'Impossibile caricare le prenotazioni dal server. Errore: ' +
+          error.toString();
         this.showMessagePar = true;
         setTimeout(() => {
           this.showMessagePar = false;
@@ -216,7 +217,13 @@ export class AppComponent {
 
       if (currentPlatea[fila][posto].length > 0) {
         //Posto richiesto già prenotato
-        return false;
+        this.messagePar =
+          'Errore: Impossibile salvare la prenotazione sul server. (chiave non trovata)';
+        this.showMessagePar = true;
+        setTimeout(() => {
+          this.showMessagePar = false;
+          this.doLogout();
+        }, 3000);
       }
       //Posto libero, lo prenoto
       currentPlatea[fila][posto] = nome;
@@ -228,7 +235,13 @@ export class AppComponent {
 
       if (currentPalchi[fila][posto].length > 0) {
         //Posto richiesto già prenotato
-        return false;
+        this.messagePar =
+          'Errore: Impossibile salvare la prenotazione sul server. (chiave non trovata)';
+        this.showMessagePar = true;
+        setTimeout(() => {
+          this.showMessagePar = false;
+          this.doLogout();
+        }, 3000);
       }
       //Posto libero, lo prenoto
       currentPalchi[fila][posto] = nome;
@@ -299,7 +312,8 @@ export class AppComponent {
       },
       (error: any) => {
         this.messagePar =
-          'Impossibile salvare la prenotazione sul server. Errore: ' + error;
+          'Impossibile salvare la prenotazione sul server. Errore: ' +
+          error.toString();
         this.showMessagePar = true;
         setTimeout(() => {
           this.showMessagePar = false;

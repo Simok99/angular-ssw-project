@@ -63,14 +63,19 @@ export class PrenotazioneComponent implements OnInit, OnChanges {
 
   addPostoPlatea(fila: number, posto: number) {
     let value: string = fila + '-' + posto;
-    if (this.postiPlatea.indexOf(value) !== -1) return; //Posto già prenotato
     this.postiPlatea.push(value);
     this.postiPrenotati.push(this.getLetter(fila) + (posto + 1));
   }
 
+  removePostoPlatea(fila: number, posto: number) {
+    let index: number = this.postiPrenotati.indexOf(
+      this.getLetter(fila) + (posto + 1)
+    );
+    this.postiPrenotati.splice(index, 1);
+  }
+
   addPostoPalchi(fila: number, posto: number) {
     let value: string = fila + '-' + posto;
-    if (this.postiPalchi.indexOf(value) !== -1) return; //Posto già prenotato
     this.postiPalchi.push(value);
     let postiPalchi: number = this.th.getPostiPalchi();
     let i: number = fila + 1;
@@ -78,6 +83,16 @@ export class PrenotazioneComponent implements OnInit, OnChanges {
 
     //Grazie anche a Domenico per la serata passata a trovare questa formula :)
     this.postiPrenotati.push('Pa ' + (i * j + (postiPalchi - j) * (i - 1)));
+  }
+
+  removePostoPalchi(fila: number, posto: number) {
+    let postiPalchi: number = this.th.getPostiPalchi();
+    let i: number = fila + 1;
+    let j: number = posto + 1;
+    let index: number = this.postiPrenotati.indexOf(
+      'Pa ' + (i * j + (postiPalchi - j) * (i - 1))
+    );
+    this.postiPrenotati.splice(index, 1);
   }
 
   warnPosto() {
