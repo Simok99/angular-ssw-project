@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
 import { KvaasService } from './kvaas.service';
 
 @Component({
@@ -62,21 +63,25 @@ export class AppComponent {
   }
 
   async genKey() {
-    //TODO wait for key generation
-    await this.kvaas.newAPIKey().subscribe({
-      next: (data: any) => {
-        this.newAPIKey = data;
+    //TODO review
+    await firstValueFrom(this.kvaas.newAPIKey()).then(
+      (newKey: string) => {
+        this.newAPIKey = newKey;
+        return true;
       },
-      error: (e) => {
+      (error) => {
         this.messagePar =
-          'Errore: il server non ha potuto generare una nuova chiave. ' + e;
+          'Errore: Impossibile salvare il nuovo teatro sul server. (chiave non generata)' +
+          error;
         this.showMessagePar = true;
         setTimeout(() => {
           this.showMessagePar = false;
         }, 3000);
         this.doLogout();
-      },
-    });
+        return false;
+      }
+    );
+    return false;
   }
 
   saveTh() {
