@@ -86,8 +86,8 @@ export class AppComponent {
               this.showMessagePar = true;
               setTimeout(() => {
                 this.showMessagePar = false;
+                this.doLogout();
               }, 3000);
-              this.doLogout();
               return;
             }
 
@@ -115,8 +115,8 @@ export class AppComponent {
             this.showMessagePar = true;
             setTimeout(() => {
               this.showMessagePar = false;
+              this.doLogout();
             }, 3000);
-            this.doLogout();
             return;
           }
         );
@@ -128,10 +128,10 @@ export class AppComponent {
         this.showMessagePar = true;
         setTimeout(() => {
           this.showMessagePar = false;
+          this.saveEnabled = true;
+          this.doLogout();
         }, 3000);
         alert('Errore nella generazione della chiave');
-        this.saveEnabled = true;
-        this.doLogout();
         return;
       }
     );
@@ -150,6 +150,7 @@ export class AppComponent {
     this.userInputKey = key;
     this.showT = false;
     this.selezione = undefined;
+    //this.resetDefaultTh(); //Reimposta le prenotazioni del teatro default
     this.checkPrenotazioni();
     this.showFormName = true;
   }
@@ -158,14 +159,14 @@ export class AppComponent {
     this.fetchPrenotazioni().then(
       (data: any) => {
         let response: string = data;
-        if (response.search('non esiste') !== -1) {
+        if (response.indexOf('non esiste') !== -1) {
           this.messagePar =
             'Errore: Impossibile caricare le prenotazioni dal server. (chiave non trovata)';
           this.showMessagePar = true;
           setTimeout(() => {
             this.showMessagePar = false;
+            this.doLogout();
           }, 3000);
-          this.doLogout();
           return;
         }
 
@@ -179,8 +180,8 @@ export class AppComponent {
         this.showMessagePar = true;
         setTimeout(() => {
           this.showMessagePar = false;
+          this.doLogout();
         }, 3000);
-        this.doLogout();
         return;
       }
     );
@@ -214,18 +215,19 @@ export class AppComponent {
       .split(',');
 
     for (let filaPosto of requestedPostiPlatea) {
+      if (filaPosto === '') break;
       let fila: number = +filaPosto.substring(0, filaPosto.indexOf('-'));
       let posto: number = +filaPosto.substring(filaPosto.indexOf('-') + 1);
 
       if (currentPlatea[fila][posto].length > 0) {
         //Posto richiesto già prenotato
         this.messagePar =
-          'Errore: Impossibile salvare la prenotazione sul server. (chiave non trovata)';
+          'Errore: Impossibile salvare la prenotazione sul server. (posto già prenotato)';
         this.showMessagePar = true;
         setTimeout(() => {
           this.showMessagePar = false;
+          this.doLogout();
         }, 3000);
-        this.doLogout();
         return;
       }
       //Posto libero, lo prenoto
@@ -233,18 +235,19 @@ export class AppComponent {
     }
 
     for (let filaPosto of requestedPostiPalchi) {
+      if (filaPosto === '') break;
       let fila: number = +filaPosto.substring(0, filaPosto.indexOf('-'));
       let posto: number = +filaPosto.substring(filaPosto.indexOf('-') + 1);
 
       if (currentPalchi[fila][posto].length > 0) {
         //Posto richiesto già prenotato
         this.messagePar =
-          'Errore: Impossibile salvare la prenotazione sul server. (chiave non trovata)';
+          'Errore: Impossibile salvare la prenotazione sul server. (posto già prenotato)';
         this.showMessagePar = true;
         setTimeout(() => {
           this.showMessagePar = false;
+          this.doLogout();
         }, 3000);
-        this.doLogout();
         return;
       }
       //Posto libero, lo prenoto
@@ -286,14 +289,14 @@ export class AppComponent {
     this.setData(this.userInputKey).then(
       (data: any) => {
         let response: string = data;
-        if (response.search('400') !== -1) {
+        if (response.indexOf('400') !== -1) {
           this.messagePar =
             'Errore: Impossibile salvare la prenotazione sul server. (chiave non trovata)';
           this.showMessagePar = true;
           setTimeout(() => {
             this.showMessagePar = false;
+            this.doLogout();
           }, 3000);
-          this.doLogout();
           return;
         }
 
@@ -323,8 +326,8 @@ export class AppComponent {
         this.showMessagePar = true;
         setTimeout(() => {
           this.showMessagePar = false;
+          this.doLogout();
         }, 3000);
-        this.doLogout();
         return;
       }
     );
@@ -363,6 +366,13 @@ export class AppComponent {
 
   private doConfirm(data: string) {
     this.requestPrenotazione(data, this.formName);
+  }
+
+  private resetDefaultTh() {
+    //Funzione di utilità che reimposta le prenotazioni per il teatro default
+    let teatro: Teatro = new Teatro(1, 'Shakespeare', 7, 4, 10, 6);
+    this.teatroSel = teatro;
+    this.setData(this.userInputKey);
   }
 
   getTeatri() {

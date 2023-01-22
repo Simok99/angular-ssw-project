@@ -68,9 +68,12 @@ export class PrenotazioneComponent implements OnInit, OnChanges {
   }
 
   removePostoPlatea(fila: number, posto: number) {
+    let value: string = fila + '-' + posto;
     let index: number = this.postiPrenotati.indexOf(
       this.getLetter(fila) + (posto + 1)
     );
+    let i = this.postiPlatea.indexOf(value);
+    this.postiPlatea.splice(i, 1);
     this.postiPrenotati.splice(index, 1);
   }
 
@@ -92,6 +95,10 @@ export class PrenotazioneComponent implements OnInit, OnChanges {
     let index: number = this.postiPrenotati.indexOf(
       'Pa ' + (i * j + (postiPalchi - j) * (i - 1))
     );
+
+    let value: string = fila + '-' + posto;
+    i = this.postiPalchi.indexOf(value);
+    this.postiPalchi.splice(i, 1);
     this.postiPrenotati.splice(index, 1);
   }
 
