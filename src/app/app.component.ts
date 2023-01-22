@@ -75,6 +75,9 @@ export class AppComponent {
   saveTh() {
     this.saveEnabled = false;
 
+    this.teatroSel.buildPlatea();
+    this.teatroSel.buildPalchi();
+
     this.genKey().then(
       (newKey: string) => {
         this.newAPIKey = newKey;
@@ -419,13 +422,13 @@ export class Teatro {
     this.buildPalchi();
   }
 
-  private buildPlatea() {
+  public buildPlatea() {
     this.platea = Array.from({ length: this.filePlatea }, () => '').map(() =>
       Array.from({ length: this.postiPlatea }, () => '')
     );
   }
 
-  private buildPalchi() {
+  public buildPalchi() {
     this.palchi = Array.from({ length: this.filePalchi }, () => '').map(() =>
       Array.from({ length: this.postiPalchi }, () => '')
     );
