@@ -166,6 +166,7 @@ export class AppComponent {
             this.showMessagePar = false;
           }, 3000);
           this.doLogout();
+          return;
         }
 
         //Risposta ok, aggiorno i dati locali
@@ -180,6 +181,7 @@ export class AppComponent {
           this.showMessagePar = false;
         }, 3000);
         this.doLogout();
+        return;
       }
     );
   }
@@ -222,8 +224,9 @@ export class AppComponent {
         this.showMessagePar = true;
         setTimeout(() => {
           this.showMessagePar = false;
-          this.doLogout();
         }, 3000);
+        this.doLogout();
+        return;
       }
       //Posto libero, lo prenoto
       currentPlatea[fila][posto] = nome;
@@ -240,8 +243,9 @@ export class AppComponent {
         this.showMessagePar = true;
         setTimeout(() => {
           this.showMessagePar = false;
-          this.doLogout();
         }, 3000);
+        this.doLogout();
+        return;
       }
       //Posto libero, lo prenoto
       currentPalchi[fila][posto] = nome;
@@ -289,6 +293,8 @@ export class AppComponent {
           setTimeout(() => {
             this.showMessagePar = false;
           }, 3000);
+          this.doLogout();
+          return;
         }
 
         //Prenotazione salvata sul server
@@ -318,6 +324,8 @@ export class AppComponent {
         setTimeout(() => {
           this.showMessagePar = false;
         }, 3000);
+        this.doLogout();
+        return;
       }
     );
   }
