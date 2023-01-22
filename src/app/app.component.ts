@@ -336,6 +336,7 @@ export class AppComponent {
     this.selezione = undefined;
     this.showFormName = false;
     this.showT = true;
+    this.showAddT = true;
   }
 
   private doConfirm(data: string) {
